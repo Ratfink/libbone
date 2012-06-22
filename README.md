@@ -1,7 +1,7 @@
 libbone
 =======
 
-A library for working with the BeagleBone in Bash
+A library for working with the BeagleBone in C
 
 Goals
 -----
