@@ -20,11 +20,4 @@
  * IN THE SOFTWARE.
  */
 
-#ifndef __BONE_UTIL_H__
-#define __BONE_UTIL_H__
-
-#define P8 0
-#define P9 50
-
-
-#endif /* __BONE_UTIL_H__ */
+#include "util.h"

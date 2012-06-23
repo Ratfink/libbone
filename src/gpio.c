@@ -168,7 +168,7 @@ int bone_gpio_get_value(int pnpin)
              bone_gpio_pins[pnpin]);
     if ((valfd = open(filename, O_RDONLY, 0)) == -1)
         return -1;
-    if (read(valfd, &value, 1) == -1)
+    if (read(valfd, &value, 1) != 1)
         return -1;
     if (close(valfd) == -1)
         return -1;
@@ -185,7 +185,7 @@ int bone_gpio_set_value(int pnpin, int value)
     snprintf(filename, 30, "/sys/class/gpio/gpio%i/value",
              bone_gpio_pins[pnpin]);
     value = value + '0';
-    if ((valfd = open(filename, O_RDONLY, 0)) == -1)
+    if ((valfd = open(filename, O_WRONLY, 0)) == -1)
         return -1;
     if (write(valfd, &value, 1) == -1)
         return -1;
@@ -226,9 +226,9 @@ int bone_gpio_set_dir(int pnpin, int dir)
     int dirfd;
     char filename[34];
 
-    snprintf(filename, 34, "/sys/class/gpio/gpio%i/value",
+    snprintf(filename, 34, "/sys/class/gpio/gpio%i/direction",
              bone_gpio_pins[pnpin]);
-    if ((dirfd = open(filename, O_RDONLY, 0)) == -1)
+    if ((dirfd = open(filename, O_WRONLY, 0)) == -1)
         return -1;
     if (dir == 0) {
         if (write(dirfd, "in", 2) == -1)

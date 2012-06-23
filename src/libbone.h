@@ -21,6 +21,6 @@
  */
 
 // mux isn't an immediate concern; I need gpio though
-//#include "src/mux.h"
-#include "src/util.h"
-#include "src/gpio.h"
+//#include "mux.h"
+#include "util.h"
+#include "gpio.h"

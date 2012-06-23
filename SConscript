@@ -17,7 +17,7 @@ opts.Add('LIBPATH',    'Additional library paths',      [])
 opts.Add('CPPFLAGS',   'Additional preprocessor flags', [])
 opts.Add('CPPDEFINES', 'defined constants', [])
 opts.Add('LIBS',       'Additional libraries', [])
-opts.Add('CCFLAGS',    'C Compiler flags', ['-fPIC', '-g', '-std=c99', '-Wall'])
+opts.Add('CCFLAGS',    'C Compiler flags', ['-g', '-std=c99', '-Wall'])
 opts.Add('LINKFLAGS',  'Linker Compiler flags', ['-Wl,-soname,libbone.so.0'])
 
 env = Environment(options=opts)

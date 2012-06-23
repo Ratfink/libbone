@@ -36,4 +36,5 @@ int bone_gpio_get_dir(int pnpin);
 int bone_gpio_set_dir(int pnpin, int dir);
 /* TODO: active low and poll */
 
+
 #endif /* __BONE_GPIO_H__ */
