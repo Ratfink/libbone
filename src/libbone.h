@@ -19,3 +19,8 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
+
+// mux isn't an immediate concern; I need gpio though
+//#include "src/mux.h"
+#include "src/util.h"
+#include "src/gpio.h"

@@ -19,3 +19,21 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
+
+#ifndef __BONE_GPIO_H__
+#define __BONE_GPIO_H__
+
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+
+int bone_gpio_export(int pnpin);
+int bone_gpio_unexport(int pnpin);
+int bone_gpio_get_value(int pnpin);
+int bone_gpio_set_value(int pnpin, int value);
+int bone_gpio_get_dir(int pnpin);
+int bone_gpio_set_dir(int pnpin, int dir);
+/* TODO: active low and poll */
+
+#endif /* __BONE_GPIO_H__ */
