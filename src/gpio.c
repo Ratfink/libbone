@@ -20,6 +20,9 @@
  * IN THE SOFTWARE.
  */
 
+#include "gpio.h"
+
+
 int bone_gpio_pins[] = {
     -1,  /* P8 */
     -1,  /* GND */
@@ -117,8 +120,8 @@ int bone_gpio_pins[] = {
     -1,  /* GND */
     -1,  /* GND */
     -1,  /* GND */
-    -1,  /* GND */
-}
+    -1   /* GND */
+};
 
 
 int bone_gpio_export(int pnpin)
@@ -165,7 +168,7 @@ int bone_gpio_get_value(int pnpin)
              bone_gpio_pins[pnpin]);
     if ((valfd = open(filename, O_RDONLY, 0)) == -1)
         return -1;
-    if (read(valfd, value, 1) == -1)
+    if (read(valfd, &value, 1) == -1)
         return -1;
     if (close(valfd) == -1)
         return -1;
@@ -181,9 +184,10 @@ int bone_gpio_set_value(int pnpin, int value)
 
     snprintf(filename, 30, "/sys/class/gpio/gpio%i/value",
              bone_gpio_pins[pnpin]);
+    value = value + '0';
     if ((valfd = open(filename, O_RDONLY, 0)) == -1)
         return -1;
-    if (write(valfd, value + '0', 1) == -1)
+    if (write(valfd, &value, 1) == -1)
         return -1;
     if (close(valfd) == -1)
         return -1;
@@ -202,7 +206,7 @@ int bone_gpio_get_dir(int pnpin)
              bone_gpio_pins[pnpin]);
     if ((dirfd = open(filename, O_RDONLY, 0)) == -1)
         return -1;
-    if (read(dirfd, dir, 1) == -1)
+    if (read(dirfd, &dir, 1) == -1)
         return -1;
     if (close(dirfd) == -1)
         return -1;
