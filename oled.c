@@ -66,8 +66,6 @@ int main(void)
     }
 
     oled_command(fd, 0xae);//--turn off oled panel
-    oled_command(fd, 0x00);//---set low column address
-    oled_command(fd, 0x10);//---set high column address
     oled_command(fd, 0x40);//--set start line address
     oled_command(fd, 0x20);
     oled_command(fd, 0x01);
