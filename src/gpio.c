@@ -196,6 +196,17 @@ int bone_gpio_set_value(int pnpin, int value)
 }
 
 
+int bone_gpio_open_value(int pnpin)
+{
+    char filename[30];
+
+    snprintf(filename, 30, "/sys/class/gpio/gpio%i/value",
+             bone_gpio_pins[pnpin]);
+
+    return open(filename, O_RDONLY);
+}
+
+
 int bone_gpio_get_dir(int pnpin)
 {
     int dirfd;
@@ -240,6 +251,66 @@ int bone_gpio_set_dir(int pnpin, int dir)
         return -2; /* Only 0 and 1 are allowed directions */
     }
     if (close(dirfd) == -1)
+        return -1;
+
+    return 0;
+}
+
+
+enum bone_gpio_edge bone_gpio_get_edge(int pnpin)
+{
+    int efd;
+    char filename[29];
+    enum bone_gpio_edge e;
+
+    snprintf(filename, 29, "/sys/class/gpio/gpio%i/edge",
+             bone_gpio_pins[pnpin]);
+    if ((efd = open(filename, O_RDONLY, 0)) == -1)
+        return -1;
+    if (read(efd, &e, 1) == -1)
+        return -1;
+    if (close(efd) == -1)
+        return -1;
+
+    if (e == 'n') {
+        return NONE;
+    } else if (e == 'r') {
+        return RISING;
+    } else if (e == 'f') {
+        return FALLING;
+    } else if (e == 'b') {
+        return BOTH;
+    } else {
+        return -2; /* This is an odd situation */
+    }
+}
+
+
+int bone_gpio_set_edge(int pnpin, enum bone_gpio_edge e)
+{
+    int efd;
+    char filename[29];
+
+    snprintf(filename, 29, "/sys/class/gpio/gpio%i/edge",
+             bone_gpio_pins[pnpin]);
+    if ((efd = open(filename, O_WRONLY, 0)) == -1)
+        return -1;
+    if (e == NONE) {
+        if (write(efd, "none", 4) == -1)
+            return -1;
+    } else if (e == RISING) {
+        if (write(efd, "rising", 6) == -1)
+            return -1;
+    } else if (e == FALLING) {
+        if (write(efd, "falling", 7) == -1)
+            return -1;
+    } else if (e == BOTH) {
+        if (write(efd, "both", 4) == -1)
+            return -1;
+    } else {
+        return -2; /* That's not a valid value for this enum anyway */
+    }
+    if (close(efd) == -1)
         return -1;
 
     return 0;

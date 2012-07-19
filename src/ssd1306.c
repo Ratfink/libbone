@@ -176,10 +176,6 @@ int bone_ssd1306_line(bone_ssd1306_t *disp, uint16_t x0, uint16_t y0,
     uint16_t sx, sy;
     float err, e2;
 
-    if (x0 >= disp->x || x1 >= disp->x || y0 >= disp->y || y1 >= disp->y) {
-        return -1;
-    }
-
     if (x0 < x1) {
         sx = 1;
     } else {
@@ -212,6 +208,41 @@ int bone_ssd1306_line(bone_ssd1306_t *disp, uint16_t x0, uint16_t y0,
 }
 
 
+void bone_ssd1306_circle(bone_ssd1306_t *disp, int x0, int y0, int radius,
+                         bool color)
+{
+    int f = 1 - radius;
+    int ddF_x = 1;
+    int ddF_y = -2 * radius;
+    int x = 0;
+    int y = radius;
+ 
+    bone_ssd1306_point(disp, x0, y0 + radius, color);
+    bone_ssd1306_point(disp, x0, y0 - radius, color);
+    bone_ssd1306_point(disp, x0 + radius, y0, color);
+    bone_ssd1306_point(disp, x0 - radius, y0, color);
+ 
+    while (x < y) {
+        if (f >= 0) {
+            y--;
+            ddF_y += 2;
+            f += ddF_y;
+        }
+        x++;
+        ddF_x += 2;
+        f += ddF_x;    
+        bone_ssd1306_point(disp, x0 + x, y0 + y, color);
+        bone_ssd1306_point(disp, x0 - x, y0 + y, color);
+        bone_ssd1306_point(disp, x0 + x, y0 - y, color);
+        bone_ssd1306_point(disp, x0 - x, y0 - y, color);
+        bone_ssd1306_point(disp, x0 + y, y0 + x, color);
+        bone_ssd1306_point(disp, x0 - y, y0 + x, color);
+        bone_ssd1306_point(disp, x0 + y, y0 - x, color);
+        bone_ssd1306_point(disp, x0 - y, y0 - x, color);
+    }
+}
+
+
 int bone_ssd1306_char(bone_ssd1306_t *disp, uint16_t x, uint16_t y, bool color,
                       char c)
 {
@@ -219,6 +250,9 @@ int bone_ssd1306_char(bone_ssd1306_t *disp, uint16_t x, uint16_t y, bool color,
     int bufiup = bufi + disp->x;
 
     if (x >= disp->x || y >= disp->y)
+        return -1;
+
+    if (c < 0 || c > 127)
         return -1;
 
     if (y % 8 == 0) {

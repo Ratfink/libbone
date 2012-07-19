@@ -28,13 +28,23 @@
 #include <unistd.h>
 
 
+enum bone_gpio_edge {
+    NONE = 0,
+    RISING,
+    FALLING,
+    BOTH
+};
+
 int bone_gpio_export(int pnpin);
 int bone_gpio_unexport(int pnpin);
 int bone_gpio_get_value(int pnpin);
 int bone_gpio_set_value(int pnpin, int value);
+int bone_gpio_open_value(int pnpin);
 int bone_gpio_get_dir(int pnpin);
 int bone_gpio_set_dir(int pnpin, int dir);
-/* TODO: active low and poll */
+enum bone_gpio_edge bone_gpio_get_edge(int pnpin);
+int bone_gpio_set_edge(int pnpin, enum bone_gpio_edge e);
+/* TODO: active low */
 
 
 #endif /* __BONE_GPIO_H__ */
