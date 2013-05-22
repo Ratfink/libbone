@@ -73,6 +73,8 @@ int bone_ssd1306_line(bone_ssd1306_t *disp, uint16_t x0, uint16_t y0,
                       uint16_t x1, uint16_t y1, bool color);
 void bone_ssd1306_circle(bone_ssd1306_t *disp, int x0, int y0, int radius,
                          bool color);
+void bone_ssd1306_rect(bone_ssd1306_t *disp, int x0, int y0, int x1, int y1,
+                       bool color);
 /* Text functions */
 int bone_ssd1306_char(bone_ssd1306_t *disp, uint16_t x, uint16_t y, bool color,
                       char c);
