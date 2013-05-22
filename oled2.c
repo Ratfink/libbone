@@ -10,7 +10,11 @@
 
 int main(void)
 {
-    bone_ssd1306_t *display = bone_ssd1306_init(P8+3, 2, 0, 128, 64);
+    bone_ssd1306_t *display = bone_ssd1306_init(P8+3, I2C, 1, 0x3c, 128, 64);
+    if (display == NULL) {
+        perror("error initializing display");
+        return 1;
+    }
     bone_ssd1306_setup(display);
 
     /* program goes here */

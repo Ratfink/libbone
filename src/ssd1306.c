@@ -23,7 +23,8 @@
 #include "ssd1306.h"
 
 
-bone_ssd1306_t *bone_ssd1306_init(int rst, int spi, int cs, int x, int y)
+bone_ssd1306_t *bone_ssd1306_init(int rst, enum bone_interface iface,
+                                  int major, int minor, int x, int y)
 {
     bone_ssd1306_t *disp = malloc(sizeof (bone_ssd1306_t));
     char dev[20];
@@ -32,16 +33,30 @@ bone_ssd1306_t *bone_ssd1306_init(int rst, int spi, int cs, int x, int y)
         return NULL;
     }
     disp->rst = rst;
-    disp->spi = spi;
-    disp->cs = cs;
-    snprintf(dev, 20, "/dev/spidev%i.%i", spi, cs);
-    if ((disp->fd = open(dev, O_RDWR)) == -1) {
+    disp->iface = iface;
+    disp->major = major;
+    disp->minor = minor;
+    if (iface == (enum bone_interface) SPI) {
+        snprintf(dev, 20, "/dev/spidev%i.%i", major, minor);
+    } else if (iface == (enum bone_interface) I2C) {
+        snprintf(dev, 20, "/dev/i2c-%i", major);
+    }
+    disp->fd = open(dev, O_RDWR);
+    if (disp->fd == -1) {
+        free(disp);
         return NULL;
+    }
+    if (iface == (enum bone_interface) I2C) {
+        if (ioctl(disp->fd, I2C_SLAVE, minor) < 0) {
+            free(disp);
+            return NULL;
+        }
     }
     disp->x = x;
     disp->y = y;
     disp->buf = malloc(x * y / 8); /* x*y bits */
     if (disp->buf == NULL) {
+        free(disp);
         return NULL;
     }
     return disp;
@@ -97,26 +112,38 @@ int bone_ssd1306_setup(bone_ssd1306_t *disp)
 
 void bone_ssd1306_draw(bone_ssd1306_t *disp)
 {
-    for (int i = 0; i < disp->x * disp->y / 8; i++) {
-        bone_ssd1306_dat(disp, disp->buf[i]);
+    if (disp->iface == (enum bone_interface) SPI) {
+        for (int i = 0; i < disp->x * disp->y / 8; i++) {
+            bone_ssd1306_dat(disp, disp->buf[i]);
+        }
+    } else if (disp->iface == (enum bone_interface) I2C) {
+        for (int i = 0; i < 32; i++) {
+            i2c_smbus_write_i2c_block_data(disp->fd, 0x40, 32, disp->buf + 32*i);
+        }
     }
 }
 
 
 int bone_ssd1306_cmd(bone_ssd1306_t *disp, uint8_t cmd)
 {
-    uint16_t cmd9 = cmd & ~0x100;
-    struct spi_ioc_transfer trans = {
-        .tx_buf = (unsigned long) &cmd9,
-        .rx_buf = (unsigned long) NULL,
-        .len = 2,
-        .delay_usecs = 0,
-        .speed_hz = 10000000,
-        .bits_per_word = 9
-    };
+    if (disp->iface == (enum bone_interface) SPI) {
+        uint16_t cmd9 = cmd & ~0x100;
+        struct spi_ioc_transfer trans = {
+            .tx_buf = (unsigned long) &cmd9,
+            .rx_buf = (unsigned long) NULL,
+            .len = 2,
+            .delay_usecs = 0,
+            .speed_hz = 10000000,
+            .bits_per_word = 9
+        };
 
-    if (ioctl(disp->fd, SPI_IOC_MESSAGE(1), &trans) == -1) {
-        return -1;
+        if (ioctl(disp->fd, SPI_IOC_MESSAGE(1), &trans) == -1) {
+            return -1;
+        }
+    } else if (disp->iface == (enum bone_interface) I2C) {
+        if (i2c_smbus_write_byte_data(disp->fd, 0x80, cmd) == -1) {
+            return -1;
+        }
     }
     return 0;
 }
@@ -124,18 +151,22 @@ int bone_ssd1306_cmd(bone_ssd1306_t *disp, uint8_t cmd)
 
 int bone_ssd1306_dat(bone_ssd1306_t *disp, uint8_t dat)
 {
-    uint16_t dat9 = dat | 0x100;
-    struct spi_ioc_transfer trans = {
-        .tx_buf = (unsigned long) &dat9,
-        .rx_buf = (unsigned long) NULL,
-        .len = 2,
-        .delay_usecs = 0,
-        .speed_hz = 10000000,
-        .bits_per_word = 9
-    };
+    if (disp->iface == (enum bone_interface) SPI) {
+        uint16_t dat9 = dat | 0x100;
+        struct spi_ioc_transfer trans = {
+            .tx_buf = (unsigned long) &dat9,
+            .rx_buf = (unsigned long) NULL,
+            .len = 2,
+            .delay_usecs = 0,
+            .speed_hz = 10000000,
+            .bits_per_word = 9
+        };
 
-    if (ioctl(disp->fd, SPI_IOC_MESSAGE(1), &trans) == -1) {
-        return -1;
+        if (ioctl(disp->fd, SPI_IOC_MESSAGE(1), &trans) == -1) {
+            return -1;
+        }
+    } else if (disp->iface == (enum bone_interface) I2C) {
+        i2c_smbus_write_byte_data(disp->fd, 0xc0, dat);
     }
     return 0;
 }

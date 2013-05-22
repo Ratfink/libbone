@@ -30,6 +30,9 @@
 #include <string.h>
 #include <unistd.h>
 #include <linux/spi/spidev.h>
+/* This next one might not be the correct header, so I'm putting the right one
+ * in libbone/src and including it from there */
+#include "i2c-dev.h"
 #include <linux/types.h>
 #include <sys/ioctl.h>
 #include <fcntl.h>
@@ -37,10 +40,16 @@
 #include "font.h"
 
 
+enum bone_interface {
+    SPI = 0,
+    I2C
+};
+
 typedef struct bone_ssd1306 {
     int rst; /* Pn+pin */
-    int spi;
-    int cs;
+    enum bone_interface iface;
+    int major;
+    int minor;
     int fd;
     uint16_t x;
     uint16_t y;
@@ -48,7 +57,8 @@ typedef struct bone_ssd1306 {
 } bone_ssd1306_t;
 
 /* Setup functions */
-bone_ssd1306_t *bone_ssd1306_init(int rst, int spi, int cs, int x, int y);
+bone_ssd1306_t *bone_ssd1306_init(int rst, enum bone_interface iface,
+                                  int major, int minor, int x, int y);
 void bone_ssd1306_free(bone_ssd1306_t *disp);
 int bone_ssd1306_setup(bone_ssd1306_t *disp);
 /* Low-ish level stuff */
@@ -60,7 +70,7 @@ void bone_ssd1306_clear(bone_ssd1306_t *disp, bool color);
 int bone_ssd1306_point(bone_ssd1306_t *disp, uint16_t x, uint16_t y,
                        bool color);
 int bone_ssd1306_line(bone_ssd1306_t *disp, uint16_t x0, uint16_t y0,
-                       uint16_t x1, uint16_t y1, bool color);
+                      uint16_t x1, uint16_t y1, bool color);
 void bone_ssd1306_circle(bone_ssd1306_t *disp, int x0, int y0, int radius,
                          bool color);
 /* Text functions */
