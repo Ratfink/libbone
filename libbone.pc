@@ -1,0 +1,5 @@
+Name: libbone
+Description: Library for controlling hardware connected to a BeagleBone
+Version: 0.0.1
+Cflags: -I/usr/include
+Libs: -lbone

@@ -1,5 +1,5 @@
-// $ gcc -g -o printoled printoled.c -Lbuild -lbone -Isrc/
-// # LD_LIBRARY_PATH="build/" ./printoled
+// $ gcc -g -o printoled printoled.c `pkg-config --cflags --libs libbone`
+// # ./printoled
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdio.h>

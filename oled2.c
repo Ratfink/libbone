@@ -1,5 +1,5 @@
-// $ gcc -g -o oled2 oled2.c -Lbuild -lbone -Isrc/
-// # LD_LIBRARY_PATH="build/" ./oled2
+// $ gcc -g -o oled2 oled2.c `pkg-config --cflags --libs libbone`
+// # ./oled2
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>

@@ -1,5 +1,5 @@
-// $ gcc -o oled_i2c oled_i2c.c -Lbuild -lbone -Isrc/ -O2
-// # LD_LIBRARY_PATH="build/" ./oled_i2c
+// $ gcc -O2 -o oled_i2c oled_i2c.c `pkg-config --cflags --libs libbone`
+// # ./oled_i2c
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

@@ -1,8 +1,8 @@
-// $ gcc -g -o gpiotest gpiotest.c -Lbuild -lbone -Isrc/
-// # LD_LIBRARY_PATH="build/" ./gpiotest
+// $ gcc -g -o gpiotest gpiotest.c `pkg-config --cflags --libs libbone`
+// # ./gpiotest
 #include <stdio.h>
 #include <unistd.h>
-#include "libbone.h"
+#include <libbone/libbone.h>
 
 int main(void)
 {

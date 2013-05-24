@@ -45,6 +45,8 @@ case $build in
     ;;
 esac
 
+install="/usr"
+
 case $ldt in
   help)
     printf "\033[1mL\033[0met's \033[1md\033[0mo "
@@ -53,6 +55,7 @@ case $ldt in
     printf "usage: ldt.sh [subcommand]\n"
     printf "where subcommand is one of:\n"
     printf "  build (default): compile the project\n"
+    printf "  install: put compiled binaries in appropriate places\n"
     printf "  clean: remove anything ldt.sh created\n"
     printf "  help: show this message\n"
     ;;
@@ -77,7 +80,7 @@ case $ldt in
         mkdir "$dest"
     fi
 
-    cwd=$PWD
+    cwd="$PWD"
 
     last="$cwd/$ldtlast"
     cf="$last"
@@ -85,7 +88,7 @@ case $ldt in
         cf="$src"
     fi
 
-    if [ "$src" -ot $(eval echo $cf) ]; then
+    if [ "$src" -ot "$(eval echo $cf)" ]; then
         note "No change since last build."
         exit 0
     fi
@@ -98,7 +101,7 @@ case $ldt in
             cd "$cwd"
             # Okay, yeah, this is a dirty hack, but it gets the job done without
             # having to write the same command twice.
-            pexec $cc -o $dest/$filename.o -c $cflags $src/$f
+            pexec $cc -o "$dest/$filename.o" -c $cflags "$src/$f"
             if [ $? -ne 0 ]; then
                 fatal "Build error!"
             fi
@@ -107,17 +110,42 @@ case $ldt in
     done
 
     cd "$cwd"
-    pexec $cc -o $dest/$prog $dest/*.o $libs
+    pexec $cc -o "$dest/$prog" "$dest/*.o" $libs
 
     cd "$dest"
     if [ ! -h "libbone.so" ]; then
-        pexec ln -s libbone.so.0.0.1 libbone.so
+        pexec ln -s "$prog" libbone.so
     fi
     if [ ! -h "libbone.so.0" ]; then
-        pexec ln -s libbone.so.0.0.1 libbone.so.0
+        pexec ln -s "$prog" libbone.so.0
     fi
     cd "$cwd"
 
     touch "$ldtlast"
     ;;
+  install)
+    info "Let's install this stuff here!"
+    cwd="$PWD"
+    pexec install -Dm644 "${prog%%.*}.pc" "$install/lib/pkgconfig"
+    cd "$dest"
+    pexec install -Dm755 "$prog" "$install/lib/$prog"
+    cd "$cwd/$src"
+    for f in ./*.h; do
+        pexec install -Dm644 "$f" "$install/include/${prog%%.*}/$f"
+    done
+    cd "$install/lib"
+    if [ ! -h "libbone.so" ]; then
+        pexec ln -s "$prog" libbone.so
+    fi
+    if [ ! -h "libbone.so.0" ]; then
+        pexec ln -s "$prog" libbone.so.0
+    fi
+    ;;
+  uninstall)
+    info "Let's uninstall this stuff here!"
+    pexec rm "$install/lib/pkgconfig/${prog%%.*}.pc"
+    pexec rm "$install/lib/$prog"
+    pexec rm -r "$install/include/${prog%%.*}/"
+    pexec rm "$install/lib/libbone.so"
+    pexec rm "$install/lib/libbone.so.0"
 esac

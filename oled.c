@@ -1,5 +1,5 @@
-// $ gcc -g -o oled oled.c -Lbuild -lbone -Isrc/
-// # LD_LIBRARY_PATH="build/" ./oled
+// $ gcc -g -o oled oled.c `pkg-config --cflags --libs libbone`
+// # ./oled
 #include <stdio.h>
 #include <unistd.h>
 #include <linux/spi/spidev.h>
